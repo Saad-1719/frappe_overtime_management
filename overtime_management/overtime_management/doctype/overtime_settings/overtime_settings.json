@@ -1,0 +1,63 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-08-27 10:56:46.745732",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "working_days_per_month",
+  "working_hours_per_day",
+  "ot_multiplier",
+  "rounding_method"
+ ],
+ "fields": [
+  {
+   "fieldname": "working_days_per_month",
+   "fieldtype": "Int",
+   "label": "Working Days Per Month"
+  },
+  {
+   "fieldname": "working_hours_per_day",
+   "fieldtype": "Float",
+   "label": "Working Hours Per Day"
+  },
+  {
+   "fieldname": "ot_multiplier",
+   "fieldtype": "Float",
+   "label": "OT Multiplier"
+  },
+  {
+   "fieldname": "rounding_method",
+   "fieldtype": "Select",
+   "label": "Rounding Method",
+   "options": "Round\nTruncate"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-27 11:08:01.115152",
+ "modified_by": "Administrator",
+ "module": "Overtime Management",
+ "name": "Overtime Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
