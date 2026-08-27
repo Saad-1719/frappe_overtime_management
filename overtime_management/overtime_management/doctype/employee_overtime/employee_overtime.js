@@ -2,7 +2,7 @@ frappe.ui.form.on("Employee Overtime", {
     refresh: function(frm) {
         if (frm.doc.docstatus === 0) {
             frm.add_custom_button("Fetch Overtime Hours", function() {
-                if (!frm.doc.employee || !frm.doc.period_date) {
+                if (!frm.doc.employee || !frm.doc.start_date || !frm.doc.end_date) {
                     frappe.msgprint("Please select Employee and Period first");
                     return;
                 }
@@ -11,7 +11,8 @@ frappe.ui.form.on("Employee Overtime", {
                     method: "overtime_management.overtime_management.doctype.employee_overtime.employee_overtime.fetch_overtime_from_timesheets",
                     args: {
                         employee: frm.doc.employee,
-                        period_date: frm.doc.period_date
+                        start_date:frm.doc.start_date,
+                        end_date: frm.doc.end_date
                     },
                     callback: function(r) {
                         frm.clear_table("overtime_details");

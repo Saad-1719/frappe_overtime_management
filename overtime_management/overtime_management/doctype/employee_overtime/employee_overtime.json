@@ -8,7 +8,8 @@
  "field_order": [
   "employee",
   "employee_name",
-  "period_date",
+  "start_date",
+  "end_date",
   "column_break_1",
   "status",
   "section_break_1",
@@ -25,6 +26,7 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Employee",
    "options": "Employee",
    "reqd": 1
@@ -35,12 +37,6 @@
    "fieldtype": "Data",
    "label": "Employee Name",
    "read_only": 1
-  },
-  {
-   "fieldname": "period_date",
-   "fieldtype": "Date",
-   "label": "Period (any date in target month)",
-   "reqd": 1
   },
   {
    "fieldname": "column_break_1",
@@ -106,13 +102,27 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "End Date",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-27 11:01:02.862527",
+ "modified": "2026-08-27 14:54:56.793206",
  "modified_by": "Administrator",
  "module": "Overtime Management",
  "name": "Employee Overtime",
