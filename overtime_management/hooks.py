@@ -10,6 +10,37 @@ app_license = "mit"
 
 required_apps = ["frappe", "erpnext", "hrms"]
 
+
+# Fixtures
+# ------------------
+# Data that should be created/synced whenever this app is installed or migrated,
+# on any site (dev, staging, production).
+
+fixtures = [
+	{
+		"doctype": "Custom Field",
+		"filters": [
+			["dt", "=", "Timesheet Detail"],
+			["fieldname", "=", "custom_is_overtime"]
+		]
+	},
+	{
+		"doctype": "Salary Component",
+		"filters": [
+			["name", "=", "Overtime"]
+		]
+	}
+]
+add_to_apps_screen = [
+	{
+		"name": "overtime_management",
+		"logo": "/assets/overtime_management/images/logo.svg",
+		"title": "Overtime Management",
+		"route": "/app/employee-overtime",
+		# "has_permission": "overtime_management.overtime_management.utils.has_app_permission"
+	}
+]
+
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
 # 	{

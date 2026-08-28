@@ -1,6 +1,6 @@
 import frappe
 from frappe.model.document import Document
-from frappe.utils import flt, getdate, add_days
+from frappe.utils import flt, getdate, add_days,cint
 
 class EmployeeOvertime(Document):
     def validate(self):
@@ -78,6 +78,54 @@ class EmployeeOvertime(Document):
             frappe.msgprint(f"Cancelled linked Additional Salary {existing}")
 
 
+# @frappe.whitelist()
+# def fetch_overtime_from_timesheets(employee, start_date, end_date):
+
+#     start_date = getdate(start_date)
+#     end_date = getdate(end_date)
+
+#     if start_date > end_date:
+#         frappe.throw("Start Date cannot be after End Date")
+
+#     start_datetime = f"{start_date} 00:00:00"
+#     end_datetime = f"{add_days(end_date, 1)} 00:00:00"
+
+#     ot_rows = frappe.db.sql("""
+#         SELECT
+#             td.parent AS timesheet,
+#             td.from_time,
+#             td.activity_type,
+#             td.hours
+#         FROM `tabTimesheet Detail` td
+#         INNER JOIN `tabTimesheet` ts
+#             ON ts.name = td.parent
+#         WHERE
+#             ts.employee = %(employee)s
+#             AND ts.docstatus = 1
+#             AND td.custom_is_overtime = 1
+#             AND td.from_time >= %(start_datetime)s
+#             AND td.from_time < %(end_datetime)s
+#         ORDER BY td.from_time ASC
+#     """, {
+#         "employee": employee,
+#         "start_datetime": start_datetime,
+#         "end_datetime": end_datetime
+#     }, as_dict=True)
+
+#     details = []
+
+#     for row in ot_rows:
+#         details.append({
+#             "timesheet": row.timesheet,
+#             "date": getdate(row.from_time) if row.from_time else None,
+#             "activity_type": row.activity_type,
+#             "hours": row.hours,
+#             "approved_hours": row.hours
+#         })
+
+#     return details
+
+
 @frappe.whitelist()
 def fetch_overtime_from_timesheets(employee, start_date, end_date):
 
@@ -87,15 +135,22 @@ def fetch_overtime_from_timesheets(employee, start_date, end_date):
     if start_date > end_date:
         frappe.throw("Start Date cannot be after End Date")
 
-    start_datetime = f"{start_date} 00:00:00"
+    settings = frappe.get_single("Overtime Settings")
+    lookback = cint(settings.lookback_days) or 30
+
+    search_start = add_days(start_date, -lookback)
+    start_datetime = f"{search_start} 00:00:00"
     end_datetime = f"{add_days(end_date, 1)} 00:00:00"
 
     ot_rows = frappe.db.sql("""
         SELECT
+            td.name AS timesheet_detail,
             td.parent AS timesheet,
             td.from_time,
             td.activity_type,
-            td.hours
+            td.hours,
+            td.project, 
+            td.task
         FROM `tabTimesheet Detail` td
         INNER JOIN `tabTimesheet` ts
             ON ts.name = td.parent
@@ -105,6 +160,14 @@ def fetch_overtime_from_timesheets(employee, start_date, end_date):
             AND td.custom_is_overtime = 1
             AND td.from_time >= %(start_datetime)s
             AND td.from_time < %(end_datetime)s
+            AND td.name NOT IN (
+                SELECT eod.timesheet_detail
+                FROM `tabEmployee Overtime Detail` eod
+                INNER JOIN `tabEmployee Overtime` eo ON eo.name = eod.parent
+                WHERE eo.docstatus != 2
+                    AND eod.timesheet_detail IS NOT NULL
+                    AND eod.timesheet_detail != ''
+            )
         ORDER BY td.from_time ASC
     """, {
         "employee": employee,
@@ -116,11 +179,14 @@ def fetch_overtime_from_timesheets(employee, start_date, end_date):
 
     for row in ot_rows:
         details.append({
+            "timesheet_detail": row.timesheet_detail,
             "timesheet": row.timesheet,
             "date": getdate(row.from_time) if row.from_time else None,
             "activity_type": row.activity_type,
             "hours": row.hours,
-            "approved_hours": row.hours
+            "approved_hours": row.hours,
+            "is_prior_period": 1 if getdate(row.from_time) < start_date else 0
+
         })
 
     return details

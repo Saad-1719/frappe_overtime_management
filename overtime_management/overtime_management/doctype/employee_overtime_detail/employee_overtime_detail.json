@@ -8,7 +8,9 @@
  "engine": "InnoDB",
  "field_order": [
   "timesheet",
+  "timesheet_detail",
   "date",
+  "is_prior_period",
   "project",
   "activity_type",
   "task",
@@ -26,10 +28,26 @@
    "read_only": 1
   },
   {
+   "fieldname": "timesheet_detail",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Timesheet Detail",
+   "read_only": 1
+  },
+  {
    "fieldname": "date",
    "fieldtype": "Date",
    "label": "Date",
    "read_only": 1
+  },
+  {
+   "fieldname": "is_prior_period",
+   "fieldtype": "Check",
+   "label": "Prior Period",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1,
+   "description": "This row falls before the record's Start Date — it was picked up from the lookback window as previously unreported overtime."
   },
   {
    "fieldname": "activity_type",
@@ -77,7 +95,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-27 14:46:19.763047",
+ "modified": "2026-08-28 14:46:19.763047",
  "modified_by": "Administrator",
  "module": "Overtime Management",
  "name": "Employee Overtime Detail",
