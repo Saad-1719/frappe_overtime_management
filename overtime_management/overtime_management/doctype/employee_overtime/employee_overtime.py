@@ -4,30 +4,92 @@ from frappe.utils import flt, getdate, add_days,cint
 
 class EmployeeOvertime(Document):
     def validate(self):
+        self.validate_overtime_details()
         self.calculate_ot_hours()
         self.fetch_base_salary()
         self.calculate_hourly_rate()
         self.calculate_ot_amount()
 
+    def validate_overtime_details(self):
+        if not self.overtime_details:
+            frappe.throw("Cannot save: no overtime entries found. Click 'Fetch Overtime Hours' first.")
+    
     def calculate_ot_hours(self):
         self.ot_hours = sum(flt(d.approved_hours) for d in self.overtime_details)
 
     def fetch_base_salary(self):
-        base = frappe.db.get_value(
+        settings = frappe.get_single("Overtime Settings")
+        component = settings.salary_component
+        if not component:
+            frappe.throw("Please configure an OT Basis Salary Component in Overtime Settings")
+
+        # 1. Try latest submitted Salary Slip first (most accurate — real computed value)
+        row = frappe.db.sql("""
+            SELECT sd.amount
+            FROM `tabSalary Detail` sd
+            INNER JOIN `tabSalary Slip` ss ON ss.name = sd.parent
+            WHERE ss.employee = %(employee)s
+                AND ss.docstatus = 1
+                AND sd.parentfield = 'earnings'
+                AND sd.salary_component = %(component)s
+            ORDER BY ss.end_date DESC
+            LIMIT 1
+        """, {"employee": self.employee, "component": component}, as_dict=True)
+
+        if row:
+            self.base_salary = flt(row[0].amount)
+            return
+
+        # 2. Fallback: no payroll history yet — inspect the assigned Salary Structure
+        ssa = frappe.db.get_value(
             "Salary Structure Assignment",
             {"employee": self.employee, "docstatus": 1},
-            "base",
-            order_by="from_date desc"
+            ["name", "salary_structure", "base"],
+            order_by="from_date desc",
+            as_dict=True
         )
-        if not base:
-            frappe.throw(f"No active Salary Structure Assignment found for {self.employee}")
-        self.base_salary = flt(base)
+        if not ssa:
+            frappe.throw(
+                f"No submitted Salary Slip and no Salary Structure Assignment found for {self.employee}. "
+                f"Cannot calculate overtime."
+            )
 
+        detail = frappe.db.get_value(
+            "Salary Detail",
+            {"parent": ssa.salary_structure, "parentfield": "earnings", "salary_component": component},
+            ["amount", "formula"],
+            as_dict=True
+        )
+        if not detail:
+            frappe.throw(
+                f"Salary Structure '{ssa.salary_structure}' assigned to {self.employee} has no "
+                f"component '{component}'. Please check Overtime Settings or the employee's Salary Structure."
+            )
+
+        if not detail.formula and flt(detail.amount) > 0:
+            # flat-amount component
+            self.base_salary = flt(detail.amount)
+        elif (detail.formula or "").strip() == "base":
+            # standard ERPNext pattern: component = base salary directly
+            self.base_salary = flt(ssa.base)
+        else:
+            frappe.throw(
+                f"'{component}' is calculated using a custom formula ('{detail.formula}') on Salary Structure "
+                f"'{ssa.salary_structure}', and no Salary Slip exists yet to read its computed value from. "
+                f"Overtime cannot be calculated for {self.employee} until their first Salary Slip is submitted."
+            )
+
+        frappe.msgprint(
+            f"No Salary Slip found yet for {self.employee}. Using {component} = {self.base_salary} "
+            f"from Salary Structure Assignment — this is an estimate until the first payroll run.",
+            indicator="orange"
+        )
+    
     def calculate_hourly_rate(self):
         settings = frappe.get_single("Overtime Settings")
-        monthly_hours = flt(settings.working_days_per_month) * flt(settings.working_hours_per_day)
+        monthly_hours = flt(settings.standard_working_hours_per_month)
         if monthly_hours <= 0:
-            frappe.throw("Please configure Working Days/Hours in Overtime Settings")
+            frappe.throw("Please configure Standard Working Hours Per Month in Overtime Settings")
         base_hourly_rate = self.base_salary / monthly_hours
         self.hourly_rate = base_hourly_rate * flt(settings.ot_multiplier)
 
@@ -76,54 +138,6 @@ class EmployeeOvertime(Document):
             add_salary = frappe.get_doc("Additional Salary", existing)
             add_salary.cancel()
             frappe.msgprint(f"Cancelled linked Additional Salary {existing}")
-
-
-# @frappe.whitelist()
-# def fetch_overtime_from_timesheets(employee, start_date, end_date):
-
-#     start_date = getdate(start_date)
-#     end_date = getdate(end_date)
-
-#     if start_date > end_date:
-#         frappe.throw("Start Date cannot be after End Date")
-
-#     start_datetime = f"{start_date} 00:00:00"
-#     end_datetime = f"{add_days(end_date, 1)} 00:00:00"
-
-#     ot_rows = frappe.db.sql("""
-#         SELECT
-#             td.parent AS timesheet,
-#             td.from_time,
-#             td.activity_type,
-#             td.hours
-#         FROM `tabTimesheet Detail` td
-#         INNER JOIN `tabTimesheet` ts
-#             ON ts.name = td.parent
-#         WHERE
-#             ts.employee = %(employee)s
-#             AND ts.docstatus = 1
-#             AND td.custom_is_overtime = 1
-#             AND td.from_time >= %(start_datetime)s
-#             AND td.from_time < %(end_datetime)s
-#         ORDER BY td.from_time ASC
-#     """, {
-#         "employee": employee,
-#         "start_datetime": start_datetime,
-#         "end_datetime": end_datetime
-#     }, as_dict=True)
-
-#     details = []
-
-#     for row in ot_rows:
-#         details.append({
-#             "timesheet": row.timesheet,
-#             "date": getdate(row.from_time) if row.from_time else None,
-#             "activity_type": row.activity_type,
-#             "hours": row.hours,
-#             "approved_hours": row.hours
-#         })
-
-#     return details
 
 
 @frappe.whitelist()
