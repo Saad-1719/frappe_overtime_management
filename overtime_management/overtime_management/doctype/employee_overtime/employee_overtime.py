@@ -34,6 +34,50 @@ class EmployeeOvertime(Document):
     def calculate_ot_amount(self):
         self.ot_amount = flt(self.hourly_rate) * flt(self.ot_hours)
 
+    def on_submit(self):
+        self.create_additional_salary()
+
+    def create_additional_salary(self):
+        existing = frappe.db.exists(
+            "Additional Salary",
+            {"ref_docname": self.name, "docstatus": ["!=", 2]}
+        )
+        if existing:
+            frappe.msgprint(f"Additional Salary {existing} already linked to this record.")
+            return
+
+        if flt(self.ot_amount) <= 0:
+            frappe.msgprint("OT Amount is zero — skipping Additional Salary creation.")
+            return
+
+        add_salary = frappe.new_doc("Additional Salary")
+        add_salary.employee = self.employee
+        add_salary.salary_component = "Overtime"
+        add_salary.amount = self.ot_amount
+        add_salary.payroll_date = self.end_date
+        add_salary.overwrite_salary_structure_amount = 0
+        add_salary.ref_doctype = "Employee Overtime"
+        add_salary.ref_docname = self.name
+        add_salary.insert()
+        add_salary.submit()
+
+        frappe.msgprint(f"Additional Salary {add_salary.name} created for {self.employee}")
+
+    def on_cancel(self):
+        self.cancel_additional_salary()
+
+    def cancel_additional_salary(self):
+        existing = frappe.db.get_value(
+            "Additional Salary",
+            {"ref_docname": self.name, "docstatus": 1},
+            "name"
+        )
+        if existing:
+            add_salary = frappe.get_doc("Additional Salary", existing)
+            add_salary.cancel()
+            frappe.msgprint(f"Cancelled linked Additional Salary {existing}")
+
+
 @frappe.whitelist()
 def fetch_overtime_from_timesheets(employee, start_date, end_date):
 
