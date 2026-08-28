@@ -11,7 +11,6 @@ frappe.ui.form.on("Overtime Entry", {
                     method: "overtime_management.overtime_management.doctype.overtime_entry.overtime_entry.get_matching_employees",
                     args: {
                         company: frm.doc.company,
-                        department: frm.doc.department,
                         start_date: frm.doc.start_date,
                         end_date: frm.doc.end_date
                     },
