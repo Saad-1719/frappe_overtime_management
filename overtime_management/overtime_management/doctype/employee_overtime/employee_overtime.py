@@ -141,7 +141,7 @@ class EmployeeOvertime(Document):
 
 
 @frappe.whitelist()
-def fetch_overtime_from_timesheets(employee, start_date, end_date):
+def fetch_overtime_from_timesheets(employee, start_date, end_date, current_doc=None):
 
     start_date = getdate(start_date)
     end_date = getdate(end_date)
@@ -181,12 +181,14 @@ def fetch_overtime_from_timesheets(employee, start_date, end_date):
                 WHERE eo.docstatus != 2
                     AND eod.timesheet_detail IS NOT NULL
                     AND eod.timesheet_detail != ''
+                    AND eo.name != %(current_doc)s
             )
         ORDER BY td.from_time ASC
     """, {
         "employee": employee,
         "start_datetime": start_datetime,
-        "end_datetime": end_datetime
+        "end_datetime": end_datetime,
+        "current_doc": current_doc or ""
     }, as_dict=True)
 
     details = []
@@ -200,7 +202,6 @@ def fetch_overtime_from_timesheets(employee, start_date, end_date):
             "hours": row.hours,
             "approved_hours": row.hours,
             "is_prior_period": 1 if getdate(row.from_time) < start_date else 0
-
         })
 
     return details

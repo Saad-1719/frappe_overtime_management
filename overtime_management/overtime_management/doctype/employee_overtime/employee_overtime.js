@@ -11,8 +11,9 @@ frappe.ui.form.on("Employee Overtime", {
                     method: "overtime_management.overtime_management.doctype.employee_overtime.employee_overtime.fetch_overtime_from_timesheets",
                     args: {
                         employee: frm.doc.employee,
-                        start_date:frm.doc.start_date,
-                        end_date: frm.doc.end_date
+                        start_date: frm.doc.start_date,
+                        end_date: frm.doc.end_date,
+                        current_doc: frm.doc.name
                     },
                     callback: function(r) {
                         frm.clear_table("overtime_details");
