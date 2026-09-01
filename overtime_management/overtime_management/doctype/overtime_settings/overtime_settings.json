@@ -6,14 +6,22 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "settings_section",
   "salary_component",
   "standard_working_hours_per_month",
   "ot_multiplier",
-  "lookback_days"
+  "lookback_days",
+  "column_break_wqvd",
+  "notes"
  ],
  "fields": [
   {
-   "description": "Overtime hourly rate is calculated from this component's amount on the employee's latest submitted Salary Slip.",
+   "fieldname": "settings_section",
+   "fieldtype": "Section Break",
+   "label": "Settings"
+  },
+  {
+   "description": "The salary component used as the basis for overtime calculation. A submitted Salary Structure Assignment must exist for the employee.",
    "fieldname": "salary_component",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -22,7 +30,7 @@
    "reqd": 1
   },
   {
-   "description": "e.g. 208 (26 days x 8 hours), or whatever your company's standard is.",
+   "description": "e.g. 208 (26 days \u00d7 8 hours), or whatever your company's standard is.",
    "fieldname": "standard_working_hours_per_month",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -30,23 +38,35 @@
    "reqd": 1
   },
   {
+   "description": "The multiplier applied to the normal hourly salary rate for overtime.",
    "fieldname": "ot_multiplier",
    "fieldtype": "Float",
-   "label": "OT Multiplier"
+   "label": "OT Multiplier",
+   "reqd": 1
   },
   {
    "default": "30",
-   "description": "When fetching overtime, also search this many days before the period's Start Date for unreported Timesheet entries.",
+   "description": "When fetching overtime, also search this many days before the period's Start Date for unclamied Timesheet entries.",
    "fieldname": "lookback_days",
    "fieldtype": "Int",
    "label": "Unreported OT Lookback (Days)"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "HTML",
+   "label": "Overtime Calculation",
+   "options": "<div class=\"alert\"><strong>Overtime Calculation</strong><br><br>An active, submitted <strong>Salary Structure Assignment</strong> must exist for the employee before overtime can be calculated.<br><br><strong>Formula:</strong><br>OT Hourly Rate = Base Salary Component \u00f7 Standard Working Hours Per Month \u00d7 OT Multiplier<br><br><strong>Example:</strong><br>Base Salary Component = 100,000<br>Standard Working Hours = 208<br>OT Multiplier = 1.5<br><br>OT Hourly Rate = 100,000 \u00f7 208 \u00d7 1.5 = <strong>721.15</strong> per hour.<br><br><strong>OT Amount</strong> = OT Hourly Rate \u00d7 Approved OT Hours</div>"
+  },
+  {
+   "fieldname": "column_break_wqvd",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-08-29 00:50:21.307715",
+ "modified": "2026-09-01 13:55:55.631883",
  "modified_by": "Administrator",
  "module": "Overtime Management",
  "name": "Overtime Settings",
@@ -59,6 +79,16 @@
    "print": 1,
    "read": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "HR Manager",
    "share": 1,
    "write": 1
   }

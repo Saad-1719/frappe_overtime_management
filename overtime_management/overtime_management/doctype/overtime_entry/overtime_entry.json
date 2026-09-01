@@ -2,6 +2,7 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "OTM-ENT-.#####",
  "creation": "2026-08-28 14:31:18.161547",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -62,10 +63,11 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-29 00:57:41.047361",
+ "modified": "2026-09-01 13:10:21.937958",
  "modified_by": "Administrator",
  "module": "Overtime Management",
  "name": "Overtime Entry",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
