@@ -166,6 +166,11 @@ function set_dates_from_frequency(frm) {
     let end_date;
 
     switch (frm.doc.overtime_frequency) {
+        case "custom":
+            start_date = today.clone().startOf("month");
+            end_date = today.clone().endOf("month");
+            break;
+        
         case "monthly":
             start_date = today.clone().startOf("month");
             end_date = today.clone().endOf("month");

@@ -70,7 +70,7 @@
    "fieldname": "overtime_frequency",
    "fieldtype": "Select",
    "label": "Overtime Frequency",
-   "options": "monthly\nfortnightly\nweekly",
+   "options": "custom\nmonthly\nfortnightly\nweekly",
    "reqd": 1
   }
  ],
@@ -78,7 +78,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-09-03 13:52:14.862720",
+ "modified": "2026-09-03 16:15:30.097436",
  "modified_by": "Administrator",
  "module": "Overtime Management",
  "name": "Overtime Entry",
