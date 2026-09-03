@@ -193,6 +193,8 @@ def fetch_overtime_from_timesheets(employee, start_date, end_date, current_doc=N
                 "activity_type": row.activity_type,
                 "hours": row.hours,
                 "approved_hours": row.hours,
+                "project": row.project,
+                "task": row.task,
                 "is_prior_period": 1 if getdate(row.from_time) < start_date else 0,
             }
         )
