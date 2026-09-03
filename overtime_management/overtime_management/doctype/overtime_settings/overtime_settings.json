@@ -35,9 +35,11 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Standard Working Hours Per Month",
+   "default": "160",
    "reqd": 1
   },
   {
+   "default": "1.000",
    "description": "The multiplier applied to the normal hourly salary rate for overtime.",
    "fieldname": "ot_multiplier",
    "fieldtype": "Float",
@@ -66,7 +68,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-09-01 13:55:55.631883",
+ "modified": "2026-09-03 13:53:20.498467",
  "modified_by": "Administrator",
  "module": "Overtime Management",
  "name": "Overtime Settings",
