@@ -1,23 +1,68 @@
 import frappe
 from frappe.model.document import Document
-from frappe.utils import flt, getdate, add_days, cint
-
+from frappe.utils import flt, getdate, add_days, add_months, cint
 
 class OvertimeEntry(Document):
     def validate(self):
+        if not self.posting_date:
+            self.posting_date = frappe.utils.getdate()
+
+        if not self.overtime_frequency:
+            frappe.throw("Please select Overtime Frequency.")
+
+        if not self.start_date or not self.end_date:
+            frappe.throw("Please select Start Date and End Date.")
+
+        self.validate_date_range()
+
         if not self.employees:
-            frappe.throw("Cannot save: no employees found. Click 'Get Employees' first.")
-    
+            frappe.throw(
+                "Cannot save: no employees found. Click 'Get Employees' first."
+            )
+
+    def validate_date_range(self):
+        start_date = getdate(self.start_date)
+        end_date = getdate(self.end_date)
+
+        if end_date < start_date:
+            frappe.throw("End Date cannot be before Start Date.")
+
+        if self.overtime_frequency == "monthly":
+            expected_end = add_days(
+                add_months(start_date, 1),
+                -1
+            )
+
+        elif self.overtime_frequency == "weekly":
+            expected_end = add_days(start_date, 6)
+
+        elif self.overtime_frequency == "fortnightly":
+            expected_end = add_days(start_date, 13)
+
+        else:
+            frappe.throw(
+                f"Invalid Overtime Frequency: {self.overtime_frequency}"
+            )
+
+        if end_date != expected_end:
+            frappe.throw(
+                f"For {self.overtime_frequency} frequency, "
+                f"the End Date must be {expected_end} "
+                f"when the Start Date is {start_date}."
+            )
+
     def on_submit(self):
         if not self.employees:
-            frappe.throw("No employees found. Click 'Get Employees' before submitting.")
+            frappe.throw(
+                "No employees found. Click 'Get Employees' before submitting."
+            )
+
         self.create_draft_overtime_records()
 
     def create_draft_overtime_records(self):
         created, skipped = [], []
 
         for row in self.employees:
-            # skip if an overlapping submitted Employee Overtime already exists
             overlapping = frappe.db.sql("""
                 SELECT name FROM `tabEmployee Overtime`
                 WHERE employee = %(employee)s
@@ -43,18 +88,24 @@ class OvertimeEntry(Document):
             from overtime_management.overtime_management.doctype.employee_overtime.employee_overtime import (
                 fetch_overtime_from_timesheets,
             )
-            details = fetch_overtime_from_timesheets(row.employee, self.start_date, self.end_date)
+
+            details = fetch_overtime_from_timesheets(
+                row.employee,
+                self.start_date,
+                self.end_date
+            )
+
             for d in details:
                 eo.append("overtime_details", d)
 
-            eo.insert()  # stays as Draft — human review/submit happens separately
+            eo.insert()
             created.append(eo.name)
 
         frappe.msgprint(
             f"Created {len(created)} draft Employee Overtime record(s). "
-            f"Skipped {len(skipped)} (already covered by an existing submitted record)."
+            f"Skipped {len(skipped)} "
+            f"(already covered by an existing submitted record)."
         )
-
 
 @frappe.whitelist()
 def get_matching_employees(company, start_date, end_date):
