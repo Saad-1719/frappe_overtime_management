@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "overview_section",
+  "posting_date",
   "employee",
   "employee_name",
   "column_break_1",
@@ -106,6 +107,7 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Start Date",
+    "default": "Today",
    "reqd": 1
   },
   {
@@ -120,6 +122,14 @@
    "fieldtype": "Section Break",
    "label": "Overview"
   },
+    {
+     "fieldname": "posting_date",
+     "fieldtype": "Date",
+     "in_list_view": 1,
+     "label": "Posting Date",
+      "default": "Today",
+     "reqd": 1
+    },
   {
    "fieldname": "overtime_entry",
    "fieldtype": "Link",

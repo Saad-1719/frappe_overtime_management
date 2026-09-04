@@ -1,4 +1,22 @@
 frappe.ui.form.on("Employee Overtime", {
+    onload: function(frm) {
+        if (!frm.is_new()) {
+            return;
+        }
+
+        if (!frm.doc.posting_date) {
+            frm.set_value("posting_date", frappe.datetime.get_today());
+        }
+
+        if (!frm.doc.start_date) {
+            frm.set_value("start_date", frappe.datetime.get_today());
+        }
+
+        if (!frm.doc.end_date) {
+            frm.set_value("end_date", frappe.datetime.add_days(frappe.datetime.get_today(), 30));
+        }
+    },
+
     refresh: function(frm) {
         if (frm.doc.docstatus === 0) {
             frm.add_custom_button("Fetch Overtime Hours", function() {

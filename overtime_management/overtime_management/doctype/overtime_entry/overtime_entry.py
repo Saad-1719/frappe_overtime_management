@@ -81,6 +81,7 @@ class OvertimeEntry(Document):
 
             eo = frappe.new_doc("Employee Overtime")
             eo.employee = row.employee
+            eo.posting_date = self.posting_date
             eo.start_date = self.start_date
             eo.end_date = self.end_date
             eo.overtime_entry = self.name
