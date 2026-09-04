@@ -23,26 +23,24 @@ class OvertimeEntry(Document):
     def validate_date_range(self):
         start_date = getdate(self.start_date)
         end_date = getdate(self.end_date)
+        frequency = (self.overtime_frequency or "").strip().lower()
 
         if end_date < start_date:
             frappe.throw("End Date cannot be before Start Date.")
 
-        if self.overtime_frequency == "custom":
-                    expected_end = add_days(
-                        add_months(start_date, 1),
-                        -1
-                    )
-        
-        if self.overtime_frequency == "monthly":
+        if frequency == "custom":
+            return
+
+        if frequency == "monthly":
             expected_end = add_days(
                 add_months(start_date, 1),
                 -1
             )
 
-        elif self.overtime_frequency == "weekly":
+        elif frequency == "weekly":
             expected_end = add_days(start_date, 6)
 
-        elif self.overtime_frequency == "fortnightly":
+        elif frequency == "fortnightly":
             expected_end = add_days(start_date, 13)
 
         else:

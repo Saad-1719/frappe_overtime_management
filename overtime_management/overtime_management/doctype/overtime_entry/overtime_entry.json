@@ -70,7 +70,7 @@
    "fieldname": "overtime_frequency",
    "fieldtype": "Select",
    "label": "Overtime Frequency",
-   "options": "custom\nmonthly\nfortnightly\nweekly",
+   "options": "Custom\nMonthly\nFortnightly\nWeekly",
    "reqd": 1
   }
  ],

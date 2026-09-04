@@ -7,7 +7,7 @@ frappe.ui.form.on("Overtime Entry", {
 
         // Set default frequency if needed
         if (frm.is_new() && !frm.doc.overtime_frequency) {
-            frm.set_value("overtime_frequency", "monthly");
+            frm.set_value("overtime_frequency", "Monthly");
         }
 
         // Set dates based on frequency
@@ -166,22 +166,22 @@ function set_dates_from_frequency(frm) {
     let end_date;
 
     switch (frm.doc.overtime_frequency) {
-        case "custom":
+        case "Custom":
             start_date = today.clone().startOf("month");
             end_date = today.clone().endOf("month");
             break;
         
-        case "monthly":
+        case "Monthly":
             start_date = today.clone().startOf("month");
             end_date = today.clone().endOf("month");
             break;
 
-        case "weekly":
+        case "Weekly":
             start_date = today.clone().startOf("isoWeek");
             end_date = today.clone().endOf("isoWeek");
             break;
 
-        case "fortnightly":
+        case "Fortnightly":
             start_date = today.clone().startOf("isoWeek");
             end_date = start_date.clone().add(13, "days");
             break;
@@ -204,15 +204,15 @@ function set_end_date_from_start(frm) {
     let end;
 
     switch (frm.doc.overtime_frequency) {
-        case "monthly":
+        case "Monthly":
             end = start.clone().add(1, "month").subtract(1, "day");
             break;
 
-        case "weekly":
+        case "Weekly":
             end = start.clone().add(6, "days");
             break;
 
-        case "fortnightly":
+        case "Fortnightly":
             end = start.clone().add(13, "days");
             break;
 
@@ -239,15 +239,15 @@ function validate_date_range(frm) {
     let expected_end;
 
     switch (frm.doc.overtime_frequency) {
-        case "monthly":
+        case "Monthly":
             expected_end = start.clone().add(1, "month").subtract(1, "day");
             break;
 
-        case "weekly":
+        case "Weekly":
             expected_end = start.clone().add(6, "days");
             break;
 
-        case "fortnightly":
+        case "Fortnightly":
             expected_end = start.clone().add(13, "days");
             break;
 
