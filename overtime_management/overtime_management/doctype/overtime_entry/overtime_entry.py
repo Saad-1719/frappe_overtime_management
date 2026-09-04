@@ -27,6 +27,12 @@ class OvertimeEntry(Document):
         if end_date < start_date:
             frappe.throw("End Date cannot be before Start Date.")
 
+        if self.overtime_frequency == "custom":
+                    expected_end = add_days(
+                        add_months(start_date, 1),
+                        -1
+                    )
+        
         if self.overtime_frequency == "monthly":
             expected_end = add_days(
                 add_months(start_date, 1),
