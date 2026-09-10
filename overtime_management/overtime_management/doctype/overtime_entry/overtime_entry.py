@@ -1,9 +1,11 @@
 import frappe
 from frappe.model.document import Document
 from frappe.utils import flt, getdate, add_days, add_months, cint
+from overtime_management.permissions import enable_overtime_bypass
 
 class OvertimeEntry(Document):
     def validate(self):
+        enable_overtime_bypass()
         if not self.posting_date:
             self.posting_date = frappe.utils.getdate()
 

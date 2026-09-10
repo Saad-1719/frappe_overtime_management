@@ -1,10 +1,11 @@
 import frappe
 from frappe.model.document import Document
 from frappe.utils import flt, getdate, add_days, cint
-
+from overtime_management.permissions import enable_overtime_bypass
 
 class EmployeeOvertime(Document):
     def validate(self):
+        enable_overtime_bypass()
         self.validate_overtime_details()
         self.calculate_ot_hours()
         self.fetch_base_salary()
